@@ -330,7 +330,7 @@
 
 - (NSString *)descriptionWithWidth:(NSUInteger)width
 {
-  if (self.ignoreWidth) return self.contents;
+  width = MAX([_contents length], width);
   NSAssert(width>=[_contents length], @"Truncation error.");
   NSMutableString * description = [_contents mutableCopy];
   NSUInteger prepend;
