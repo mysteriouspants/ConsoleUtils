@@ -213,6 +213,7 @@
     ASCIICell * cell = [_cells objectAtIndex:cellIdx];
     for (NSUInteger i = 0; i < cell.colSpan; ++i)
       widthForCell += [[columnWidths objectAtIndex:colIdx++] unsignedIntegerValue];
+    widthForCell += cell.colSpan-1; // this simulates the single space between columns
     [description appendFormat:@"%@%@",
      [cell descriptionWithWidth:widthForCell],
      cellIdx==cellCount-1?@"":@" "
