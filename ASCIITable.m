@@ -94,7 +94,7 @@
     if ([colWidths count]>[columnWidths count])
       [columnWidths addObjectsFromArray:[colWidths subarrayWithRange:NSMakeRange([columnWidths count], [colWidths count]-[columnWidths count])]];
     for (NSUInteger i = 0;
-         i < [columnWidths count];
+         i < [columnWidths count] && i < [colWidths count];
          ++i) {
       NSUInteger colWidth = [[colWidths objectAtIndex:i] unsignedIntegerValue];
       NSUInteger columnWidth = [[columnWidths objectAtIndex:i] unsignedIntegerValue];
@@ -211,7 +211,7 @@
        ++cellIdx) {
     widthForCell = 0;
     ASCIICell * cell = [_cells objectAtIndex:cellIdx];
-    for (NSUInteger i = 0; i < cell.colSpan; ++i)
+    for (NSUInteger i = 0; i < cell.colSpan && colIdx < colCount; ++i)
       widthForCell += [[columnWidths objectAtIndex:colIdx++] unsignedIntegerValue];
     widthForCell += cell.colSpan-1; // this simulates the single space between columns
     [description appendFormat:@"%@%@",
@@ -330,6 +330,7 @@
 
 - (NSString *)descriptionWithWidth:(NSUInteger)width
 {
+  if (self.ignoreWidth) return self.contents;
   NSAssert(width>=[_contents length], @"Truncation error.");
   NSMutableString * description = [_contents mutableCopy];
   NSUInteger prepend;
