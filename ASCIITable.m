@@ -199,14 +199,23 @@
 {
   NSMutableString * description = [NSMutableString string];
   NSAssert([columnWidths count]>=[_cells count], @"Insufficient widths");
+  NSUInteger logicalWidth = 0;
+  for (ASCIICell * cell in _cells) logicalWidth += cell.colSpan;
+  NSAssert([columnWidths count]>=logicalWidth, @"Too many columns spanned. I have become confused.");
+
   NSUInteger cellCount = [_cells count];
-  NSUInteger cellCountMinusOne = cellCount - 1;
-  for (NSUInteger i = 0;
-       i < cellCount;
-       ++i) {
+  NSUInteger colCount = [columnWidths count];
+  NSUInteger widthForCell;
+  for (NSUInteger cellIdx = 0, colIdx = 0;
+       cellIdx < cellCount && colIdx < colCount;
+       ++cellIdx) {
+    widthForCell = 0;
+    ASCIICell * cell = [_cells objectAtIndex:cellIdx];
+    for (NSUInteger i = 0; i < cell.colSpan; ++i)
+      widthForCell += [[columnWidths objectAtIndex:colIdx++] unsignedIntegerValue];
     [description appendFormat:@"%@%@",
-      [[_cells objectAtIndex:i] descriptionWithWidth:[[columnWidths objectAtIndex:i] unsignedIntegerValue]],
-      i==cellCountMinusOne?@"":@" "
+     [cell descriptionWithWidth:widthForCell],
+     cellIdx==cellCount-1?@"":@" "
     ];
   }
   return [description mutableCopy];
