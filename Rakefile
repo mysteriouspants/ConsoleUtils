@@ -13,7 +13,7 @@ CFLAGS = %W( -DDEBUG -std=c99 -fobjc-arc #{'-include ASCIITable-Prefix.pch'} ).j
 LIBS = %w( -framework Foundation ).join(' ')
 
 CFLAGS=CFLAGS+' '+ENV['CFLAGS'] if ENV.has_key? 'CFLAGS'
-CFLAGS=CFLAGS+' -g -O8' if ENV.has_key? 'DEBUG' and ENV['DEBUG']=='YES'
+CFLAGS=CFLAGS+' -g -O0' if ENV.has_key? 'DEBUG' and ENV['DEBUG']=='YES'
 
 OBJC_SOURCES = FileList['*.m']
 O_FILES = OBJC_SOURCES.ext('.o')
