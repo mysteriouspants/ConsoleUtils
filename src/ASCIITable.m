@@ -17,7 +17,7 @@
 @interface ASCIIRow ()
 
 - (NSArray *)getMinimumColumnWidths;
-- (NSString *)descriptionForColumnWidths:(NSArray *)columnWidths;
+- (NSString *)descriptionForColumnWidths:(NSArray *)columnWidths spacesBetweenColumns:(NSUInteger)spaces;
 
 @end
 
@@ -30,6 +30,7 @@
 @implementation ASCIITable
 
 @synthesize rows=_rows;
+@synthesize spacesBetweenColumns=_spacesBetweenColumns;
 
 - (NSUInteger)addRow
 {
@@ -118,7 +119,8 @@
 {
   self = [super init];
   if (self) {
-    _rows = [[NSMutableArray alloc] init];
+      _rows = [[NSMutableArray alloc] init];
+      _spacesBetweenColumns = 1UL;
   }
   return self;
 }
@@ -129,7 +131,7 @@
   // 1. Find the column widths
   NSArray * columnWidths = [self getColumnWidths];
   for (ASCIIRow * row in _rows) {
-    [description appendFormat:@"%@\n", [row descriptionForColumnWidths:columnWidths]];
+    [description appendFormat:@"%@\n", [row descriptionForColumnWidths:columnWidths spacesBetweenColumns:_spacesBetweenColumns]];
   }
   return [description copy];
 }
@@ -195,31 +197,33 @@
   return [minimumWidths copy];
 }
 
-- (NSString *)descriptionForColumnWidths:(NSArray *)columnWidths
+- (NSString *)descriptionForColumnWidths:(NSArray *)columnWidths spacesBetweenColumns:(NSUInteger)spaces
 {
-  NSMutableString * description = [NSMutableString string];
-  NSAssert([columnWidths count]>=[_cells count], @"Insufficient widths");
-  NSUInteger logicalWidth = 0;
-  for (ASCIICell * cell in _cells) logicalWidth += cell.colSpan;
-  NSAssert([columnWidths count]>=logicalWidth, @"Too many columns spanned. I have become confused.");
-
-  NSUInteger cellCount = [_cells count];
-  NSUInteger colCount = [columnWidths count];
-  NSUInteger widthForCell;
-  for (NSUInteger cellIdx = 0, colIdx = 0;
-       cellIdx < cellCount && colIdx < colCount;
-       ++cellIdx) {
-    widthForCell = 0;
-    ASCIICell * cell = [_cells objectAtIndex:cellIdx];
-    for (NSUInteger i = 0; i < cell.colSpan && colIdx < colCount; ++i)
-      widthForCell += [[columnWidths objectAtIndex:colIdx++] unsignedIntegerValue];
-    widthForCell += cell.colSpan-1; // this simulates the single space between columns
-    [description appendFormat:@"%@%@",
-     [cell descriptionWithWidth:widthForCell],
-     cellIdx==cellCount-1?@"":@" "
-    ];
-  }
-  return [description mutableCopy];
+    NSMutableString * description = [NSMutableString string];
+    NSAssert([columnWidths count]>=[_cells count], @"Insufficient widths");
+    NSUInteger logicalWidth = 0;
+    for (ASCIICell * cell in _cells) logicalWidth += cell.colSpan;
+    NSAssert([columnWidths count]>=logicalWidth, @"Too many columns spanned. I have become confused.");
+    NSMutableString * spacer = [NSMutableString stringWithCapacity:spaces];
+    for (NSUInteger i = 0; i < spaces; ++i) [spacer appendString:@" "];
+    
+    NSUInteger cellCount = [_cells count];
+    NSUInteger colCount = [columnWidths count];
+    NSUInteger widthForCell;
+    for (NSUInteger cellIdx = 0, colIdx = 0;
+         cellIdx < cellCount && colIdx < colCount;
+         ++cellIdx) {
+        widthForCell = 0;
+        ASCIICell * cell = [_cells objectAtIndex:cellIdx];
+        for (NSUInteger i = 0; i < cell.colSpan && colIdx < colCount; ++i)
+            widthForCell += [[columnWidths objectAtIndex:colIdx++] unsignedIntegerValue];
+        widthForCell += cell.colSpan-1; // this simulates the single space between columns
+        [description appendFormat:@"%@%@",
+         [cell descriptionWithWidth:widthForCell],
+         cellIdx==cellCount-1?@"":spacer
+         ];
+    }
+    return [description mutableCopy];
 }
 
 - (id)init

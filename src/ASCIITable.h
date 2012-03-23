@@ -29,6 +29,7 @@ enum ASCIIAlign {
 @interface ASCIITable : NSObject
 
 @property (strong) NSMutableArray * rows;
+@property (assign) NSUInteger spacesBetweenColumns;
 
 /** Convenience method to append a new row. */
 - (NSUInteger)addRow;
